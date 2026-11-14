@@ -1593,3 +1593,269 @@ body {
   color: var(--mut);
   line-height: 1.5;
 }
+
+/* ── Demo Top Banner ──────────────────────────────────────────────────────── */
+.demo-top-banner {
+  background: color-mix(in srgb, var(--acc) 12%, var(--bg));
+  border-bottom: 1px solid color-mix(in srgb, var(--acc) 30%, transparent);
+  color: var(--fg);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 11;
+}
+
+.demo-banner-pill {
+  background: var(--acc);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 99px;
+  line-height: 1.3;
+}
+
+/* ── Nav About link ───────────────────────────────────────────────────────── */
+.nav-about-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mut);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav-about-link:hover {
+  color: var(--acc);
+}
+
+/* ── Sepolia Payment Confirmation Box ─────────────────────────────────────── */
+.payment-testnet-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: color-mix(in srgb, #ca8a04 80%, var(--fg));
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+}
+
+.payment-testnet-badge {
+  background: #ca8a04;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.payment-confirm-box {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.confirm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.confirm-row--col {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--line);
+}
+
+.confirm-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.confirm-label {
+  color: var(--mut);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.confirm-val {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.confirm-amount {
+  color: var(--acc);
+  font-family: var(--m);
+  font-size: 0.88rem;
+}
+
+.confirm-copy-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--mut);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-family: var(--f);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.confirm-copy-btn:hover {
+  border-color: var(--acc);
+  color: var(--acc);
+  background: rgba(255, 77, 0, 0.05);
+}
+
+.confirm-address-display {
+  font-family: var(--m);
+  font-size: 0.76rem;
+  word-break: break-all;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--fg);
+  user-select: all;
+}
+
+/* ── About Section ────────────────────────────────────────────────────────── */
+.market-about {
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid var(--line);
+}
+
+.about-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 36px;
+}
+
+.about-pill {
+  display: inline-block;
+  background: color-mix(in srgb, var(--acc) 15%, transparent);
+  color: var(--acc);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 99px;
+  margin-bottom: 12px;
+}
+
+.about-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.about-intro {
+  color: var(--mut);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.about-card {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--acc) 30%, var(--line));
+}
+
+.about-card-icon {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.about-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.about-card p {
+  font-size: 0.88rem;
+  color: var(--mut);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.about-card code {
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: var(--m);
+  font-size: 0.8em;
+}
+
+/* ── Footer Link Styling ─────────────────────────────────────────────────── */
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: var(--fg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-link:hover {
+  color: var(--acc);
+}
+
+.footer-sep {
+  color: var(--mut);
+  opacity: 0.4;
+  font-size: 0.75rem;
+}
+
+.footer-tagline {
+  color: var(--mut);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}

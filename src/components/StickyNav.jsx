@@ -52,6 +52,10 @@ export default function StickyNav({
       )}
 
       <ul className="nav-links" role="list">
+        <li>
+          <a href="#about" className="nav-about-link">About</a>
+        </li>
+
         {/* Wallet status / connect */}
         <li>
           {isConnected ? (

@@ -92,6 +92,12 @@ export default function App() {
       {/* Fixed dot-grid / glow background */}
       <div className="bgl" aria-hidden="true" />
 
+      {/* Testnet Demo Banner */}
+      <div className="demo-top-banner" role="banner">
+        <span className="demo-banner-pill">Notice</span>
+        <span>Testnet demo, built for the Primus zkTLS challenge</span>
+      </div>
+
       {/* Navigation */}
       <StickyNav
         username={username}

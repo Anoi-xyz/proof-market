@@ -42,12 +42,15 @@ export default function useWallet() {
     return providerRef.current;
   }
 
-  // ── Listen for account / chain changes ─────────────────────────────────────
+  // ── Listen for account / chain changes (NO requests on page load) ───────────
+  // Security rule: Never call eth_requestAccounts or query accounts on page load.
+  // We only register passive event listeners so state updates if the user
+  // connects or switches accounts later.
   useEffect(() => {
     if (!window.ethereum) return;
 
     const handleAccountsChanged = (accounts) => {
-      if (accounts.length === 0) {
+      if (!accounts || accounts.length === 0) {
         setAddress(null);
       } else {
         setAddress(accounts[0]);
@@ -62,20 +65,6 @@ export default function useWallet() {
 
     window.ethereum.on('accountsChanged', handleAccountsChanged);
     window.ethereum.on('chainChanged',    handleChainChanged);
-
-    // Eagerly read already-connected accounts (no prompt)
-    window.ethereum
-      .request({ method: 'eth_accounts' })
-      .then((accounts) => {
-        if (accounts?.length) setAddress(accounts[0]);
-      })
-      .catch(() => {});
-
-    // Read current chain
-    window.ethereum
-      .request({ method: 'eth_chainId' })
-      .then((hex) => setChainId(parseInt(hex, 16)))
-      .catch(() => {});
 
     return () => {
       window.ethereum.removeListener('accountsChanged', handleAccountsChanged);

@@ -75,6 +75,15 @@ function EthCheckout({ item, wallet, onComplete, onClose }) {
   const [phase,  setPhase]  = useState('idle');  // idle | sending | confirming | done
   const [txHash, setTxHash] = useState(null);
   const [err,    setErr]    = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyReceiver = useCallback(() => {
+    if (!RECEIVER_ADDRESS) return;
+    navigator.clipboard?.writeText(RECEIVER_ADDRESS).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  }, []);
 
   const handlePay = useCallback(async () => {
     setErr(null);
@@ -116,10 +125,48 @@ function EthCheckout({ item, wallet, onComplete, onClose }) {
   return (
     <div className="checkout-inner">
       <h2 className="checkout-title">Pay with Sepolia ETH</h2>
+
+      {/* Testnet security notice */}
+      <div className="payment-testnet-banner" role="note">
+        <span className="payment-testnet-badge">Testnet</span>
+        <strong>Sepolia testnet demo. No real funds.</strong>
+      </div>
+
       <p className="checkout-desc">
-        Send <strong>{SEPOLIA_ETH_AMOUNT} ETH</strong> on Sepolia to claim{' '}
-        <strong>{item.name}</strong>.
+        Review the transaction details before confirming in your wallet:
       </p>
+
+      {/* Confirmation details */}
+      <div className="payment-confirm-box" aria-label="Transaction confirmation details">
+        <div className="confirm-row">
+          <span className="confirm-label">Item</span>
+          <span className="confirm-val">{item.name}</span>
+        </div>
+        <div className="confirm-row">
+          <span className="confirm-label">Network</span>
+          <span className="confirm-val">Sepolia Testnet (11155111)</span>
+        </div>
+        <div className="confirm-row">
+          <span className="confirm-label">Amount</span>
+          <span className="confirm-val confirm-amount">{SEPOLIA_ETH_AMOUNT} Sepolia ETH</span>
+        </div>
+        <div className="confirm-row confirm-row--col">
+          <div className="confirm-row-header">
+            <span className="confirm-label">Receiver Address</span>
+            <button
+              type="button"
+              className="confirm-copy-btn"
+              onClick={handleCopyReceiver}
+              title="Copy receiver address"
+            >
+              {copied ? '✓ Copied' : '📋 Copy'}
+            </button>
+          </div>
+          <div className="confirm-address-display" title={RECEIVER_ADDRESS}>
+            {RECEIVER_ADDRESS || '(VITE_RECEIVER_ADDRESS not configured)'}
+          </div>
+        </div>
+      </div>
 
       {/* Progress steps */}
       <div className="progress-steps" aria-label="Payment progress">
@@ -159,9 +206,9 @@ function EthCheckout({ item, wallet, onComplete, onClose }) {
           type="button"
           className="btn-primary"
           onClick={handlePay}
-          disabled={busy || phase === 'done'}
+          disabled={busy || phase === 'done' || !RECEIVER_ADDRESS}
         >
-          {busy ? '⏳ Processing…' : phase === 'done' ? '✓ Claimed!' : 'Confirm & Pay'}
+          {busy ? '⏳ Processing…' : phase === 'done' ? '✓ Claimed!' : `Confirm & Pay (${SEPOLIA_ETH_AMOUNT} ETH)`}
         </button>
         <button type="button" className="btn-secondary" onClick={onClose} disabled={busy}>
           Cancel

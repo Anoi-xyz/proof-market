@@ -3,16 +3,36 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer className="footer">
-      <p>
-        ProofPnL uses{' '}
-        <a href="https://primuslabs.xyz" target="_blank" rel="noopener noreferrer">
+      <div className="footer-links">
+        <a href="#about" className="footer-link">
+          About ProofMarket
+        </a>
+        <span className="footer-sep" aria-hidden="true">•</span>
+        <a
+          href="https://github.com/Anoi-xyz/proof-market"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="footer-link"
+        >
+          GitHub Repository
+        </a>
+        <span className="footer-sep" aria-hidden="true">•</span>
+        <a
+          href="https://primuslabs.xyz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="footer-link"
+        >
           Primus zkTLS
-        </a>{' '}
-        to prove your data without revealing credentials.
+        </a>
+      </div>
+
+      <p className="footer-tagline">
+        ProofMarket uses <strong>Primus zkTLS</strong> to verify off-chain Web2 data without revealing credentials.
+        <br />
+        Testnet demo built for the Primus zkTLS challenge.
       </p>
-      <p style={{ marginTop: 4 }}>
-        Only your spot PnL rate is revealed. Everything else stays private.
-      </p>
+
       <p className="footer-credit">
         built by{' '}
         <a href="https://x.com/anoi_exe" target="_blank" rel="noopener noreferrer">

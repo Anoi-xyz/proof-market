@@ -87,7 +87,16 @@ For the ETH path, the server checks:
 
 ---
 
-## Limitations
+## Wallet security & transparency
+
+ProofMarket implements strict safeguards to eliminate wallet security false positives:
+
+1. **No connection on page load:** The app registers passive listeners only; `eth_requestAccounts` is never called until the user explicitly clicks "Connect Wallet".
+2. **Explicit Sepolia transfer confirmation:** Before sending testnet ETH, the modal displays a dedicated review card with the exact amount (`0.001 Sepolia ETH`), the network (`Sepolia Testnet 11155111`), the full copyable receiver address, and a prominent banner: *"Sepolia testnet demo. No real funds."*
+3. **Zero auto-signing & zero approvals:** The app never requests `personal_sign`, `eth_signTypedData`, or ERC-20 `approve`/permit allowances. The only wallet actions are explicit connection and the single user-confirmed testnet ETH transaction.
+4. **Transparent demo notice:** A persistent top banner identifies the app as a testnet demo built for the Primus zkTLS challenge, accompanied by an in-depth About section explaining the security architecture.
+
+---
 
 - **PnL proof is a credential, not a payment.** The PnL path proves the user has a certain PnL rate on Binance but no money changes hands. The item is "claimed" on the app server — it has no on-chain representation.
 
