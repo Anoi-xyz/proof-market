@@ -45,6 +45,13 @@ export default function App() {
   // { item, mode }  or  null when closed
   const [checkout, setCheckout] = useState(null);
 
+  // Automatically close checkout if wallet disconnects
+  useEffect(() => {
+    if (!wallet.address) {
+      setCheckout(null);
+    }
+  }, [wallet.address]);
+
   // After a successful claim:  { receipt, item, mode, attestation }  or  null
   const [claimResult, setClaimResult] = useState(null);
 

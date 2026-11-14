@@ -1265,13 +1265,22 @@ body {
 }
 
 .wallet-btn--connected {
-  cursor: default;
+  cursor: pointer;
   border-color: rgba(74, 222, 128, 0.4);
+  user-select: none;
 }
 
-.wallet-btn--connected:hover {
-  border-color: rgba(74, 222, 128, 0.6) !important;
-  color: var(--fg) !important;
+.wallet-btn--connected:hover,
+.wallet-btn--active {
+  border-color: var(--acc) !important;
+  background: color-mix(in srgb, var(--acc) 8%, var(--glass));
+}
+
+.wallet-chevron {
+  font-size: 0.72rem;
+  opacity: 0.7;
+  margin-left: 2px;
+  line-height: 1;
 }
 
 .wallet-dot {
@@ -1280,6 +1289,212 @@ body {
   border-radius: 50%;
   background: var(--pos);
   flex-shrink: 0;
+}
+
+.wallet-dot--warn {
+  background: #f59e0b;
+}
+
+/* ── Wallet Menu Wrapper & Dropdown ──────────────────────────────────────── */
+.wallet-menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.wallet-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-width: min(340px, calc(100vw - 24px));
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wallet-menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wallet-menu-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mut);
+}
+
+.wallet-menu-address-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.wallet-menu-full-addr {
+  font-family: var(--m);
+  font-size: 0.74rem;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.wallet-menu-copy-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--mut);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.wallet-menu-copy-btn:hover {
+  border-color: var(--acc);
+  color: var(--acc);
+  background: rgba(255, 77, 0, 0.06);
+}
+
+.network-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+  border: 1px solid var(--line);
+}
+
+.network-status-badge--valid {
+  border-color: rgba(74, 222, 128, 0.4);
+  color: var(--pos);
+}
+
+.network-status-badge--invalid {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--neg);
+}
+
+.network-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.network-status-dot.valid {
+  background: var(--pos);
+}
+
+.network-status-dot.invalid {
+  background: var(--neg);
+}
+
+.network-status-warning {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-switch-sepolia {
+  background: var(--acc);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn-switch-sepolia:hover {
+  opacity: 0.9;
+}
+
+.wallet-menu-link,
+.wallet-menu-btn-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fg);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--f);
+  width: 100%;
+}
+
+.wallet-menu-link:hover,
+.wallet-menu-btn-action:hover {
+  border-color: var(--acc);
+  color: var(--acc);
+  background: rgba(255, 77, 0, 0.05);
+}
+
+.wallet-menu-divider {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 2px 0;
+}
+
+.wallet-menu-btn-disconnect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--neg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--f);
+  width: 100%;
+}
+
+.wallet-menu-btn-disconnect:hover {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: var(--neg);
 }
 
 /* ── Checkout modal ──────────────────────────────────────────────────────── */

@@ -58,13 +58,19 @@ const REASON_CODE_MAP = {
 function friendlyError(err) {
   const code = err?.code ?? '';
   const msg  = err?.message ?? 'Unknown error';
+  if (code === 'INSUFFICIENT_BALANCE' || msg.includes('Insufficient balance:')) {
+    return msg;
+  }
   if (code === 'NO_EXTENSION')    return 'Primus extension not found. Install it from the Chrome Web Store first.';
   if (code === 'USER_CANCELLED')  return 'You cancelled the attestation. Try again when ready.';
   if (code === 'SIGNING_FAILED')  return `Signing failed: ${msg}`;
   if (code === 'NO_WALLET')       return 'No wallet connected. Please connect MetaMask first.';
   if (code === 'ATTESTATION_FAILED') return `Attestation failed: ${msg}`;
   if (REASON_CODE_MAP[msg])       return REASON_CODE_MAP[msg];
-  if (msg.includes('insufficient funds')) return 'Insufficient Sepolia ETH balance.';
+  if (msg.includes('insufficient funds')) {
+    console.error('[CheckoutModal] Raw insufficient funds error:', err);
+    return msg;
+  }
   if (msg.includes('user rejected'))      return 'Transaction rejected in wallet.';
   return msg;
 }
