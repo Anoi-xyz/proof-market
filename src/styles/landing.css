@@ -1,0 +1,321 @@
+/* ── Landing Page & Exchange Carousel Styles ──────────────────────────────── */
+
+/* Fallback aliases to app tokens */
+:root {
+  --ink: var(--fg);
+  --mute: var(--mut);
+  --o: var(--acc);
+}
+
+.landing-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  position: relative;
+  background: var(--bg);
+  color: var(--fg);
+  overflow: hidden;
+  font-family: var(--f);
+  box-sizing: border-box;
+}
+
+/* Background gradient & dots inherited from app */
+.landing-page .bgl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 38% at 50% 100%, var(--glow), transparent 70%),
+    radial-gradient(var(--dots) 1.2px, transparent 1.4px) 0 0 / 30px 30px;
+  -webkit-mask-image: linear-gradient(#000, transparent 88%);
+  mask-image: linear-gradient(#000, transparent 88%);
+}
+
+/* Header */
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px clamp(16px, 4vw, 40px);
+  position: relative;
+  z-index: 3;
+}
+
+.landing-brand {
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+
+.landing-brand i {
+  font-style: normal;
+  color: var(--acc);
+}
+
+.landing-pill {
+  font-size: 13px;
+  color: var(--mut);
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  padding: 6px 12px;
+  border-radius: 99px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 3D Stage */
+.landing-stage {
+  position: relative;
+  perspective: 1250px;
+  perspective-origin: 50% 48%;
+  min-height: 0;
+  --cw: clamp(150px, 24vw, 250px);
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 560px) {
+  .landing-stage {
+    --cw: clamp(128px, 40vw, 190px);
+  }
+}
+
+/* Orange glow blobs */
+.landing-blob {
+  position: absolute;
+  left: 50%;
+  width: 34%;
+  height: 9%;
+  transform: translateX(-50%);
+  filter: blur(26px);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #ff6a2b, #ffb899 70%, transparent);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.landing-blob.t {
+  top: -3%;
+}
+
+.landing-blob.b {
+  bottom: -3%;
+}
+
+/* 3D Cards */
+.landing-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--cw);
+  height: calc(var(--cw) * 1.62);
+  margin: calc(var(--cw) * -0.81) 0 0 calc(var(--cw) * -0.5);
+  border-radius: calc(var(--cw) * 0.07);
+  padding: calc(var(--cw) * 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--tx, #fff);
+  overflow: visible;
+  will-change: transform, opacity;
+  cursor: pointer;
+  border: none;
+  text-align: left;
+  user-select: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.landing-card::before {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  background: inherit;
+  filter: blur(30px);
+  opacity: var(--g, 0);
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.landing-card:focus-visible {
+  outline: 3px solid var(--acc);
+  outline-offset: 6px;
+}
+
+.landing-card h3 {
+  margin: 0;
+  font-size: calc(var(--cw) * 0.075);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.landing-card p {
+  margin: 0;
+  font-size: calc(var(--cw) * 0.068);
+  font-weight: 500;
+  opacity: 0.85;
+  color: inherit;
+}
+
+.landing-card .landing-tile {
+  align-self: center;
+  width: 46%;
+  aspect-ratio: 1;
+  border-radius: 26%;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-card .landing-tile img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.landing-card .landing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.landing-card .landing-tag {
+  font-size: calc(var(--cw) * 0.055);
+  padding: 0.3em 0.7em;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  white-space: nowrap;
+  font-weight: 600;
+  color: inherit;
+}
+
+/* Bottom Copy */
+.landing-copy {
+  text-align: center;
+  padding: 6px 20px calc(22px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  z-index: 3;
+}
+
+.landing-copy h1 {
+  margin: 0 auto;
+  max-width: 15ch;
+  font-size: clamp(30px, 5.2vw, 54px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.landing-copy p {
+  margin: 12px auto 20px;
+  max-width: 44ch;
+  color: var(--mut);
+  font-size: clamp(15px, 1.8vw, 17px);
+  line-height: 1.45;
+}
+
+/* Sheet & Modal Panel */
+.landing-sheet {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 12, 8, 0.38);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  z-index: 20;
+  padding: 20px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.landing-panel {
+  width: min(92vw, 400px);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: 0 24px 60px -24px rgba(120, 50, 10, 0.45);
+  text-align: center;
+  animation: slideUp 0.18s ease-out;
+}
+
+.landing-panel h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.landing-panel p {
+  margin: 0 0 20px;
+  color: var(--mut);
+  line-height: 1.45;
+  font-size: 15px;
+}
+
+.landing-acts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-btn {
+  display: inline-block;
+  background: var(--acc);
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 99px;
+  transition: transform 0.15s, opacity 0.15s;
+  text-align: center;
+}
+
+.landing-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.landing-btn:focus-visible {
+  outline: 3px solid var(--fg);
+  outline-offset: 3px;
+}
+
+.landing-ghost {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--fg);
+  border-radius: 99px;
+  padding: 12px;
+  font: 600 15px var(--f);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.landing-ghost:hover {
+  border-color: var(--acc);
+  color: var(--acc);
+}
+
+.landing-ghost:focus-visible {
+  outline: 3px solid var(--acc);
+  outline-offset: 2px;
+}

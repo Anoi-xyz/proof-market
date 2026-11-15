@@ -26,5 +26,8 @@ export const SEPOLIA_ETH_AMOUNT = '0.001';
 /** Sepolia chain ID (decimal). */
 export const SEPOLIA_CHAIN_ID = 11155111;
 
+/** Default public Sepolia RPC URL used as fallback for read queries. */
+export const DEFAULT_SEPOLIA_RPC_URL = 'https://ethereum-sepolia-rpc.publicnode.com';
+
 /** Primus template ID for the Binance PnL attestation. */
 export const TEMPLATE_ID = '369e1db8-47c9-4dc6-85b5-037cd02d3383';

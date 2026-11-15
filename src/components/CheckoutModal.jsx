@@ -12,6 +12,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import useMarketAttestation from '../hooks/useMarketAttestation.js';
 import { SEPOLIA_ETH_AMOUNT } from '../items.js';
+import { friendlyError, RPC_FAILURE_MESSAGE, isRpcFailure, REASON_CODE_MAP } from '../utils/rpcErrors.js';
+
+export { friendlyError, RPC_FAILURE_MESSAGE, isRpcFailure };
 
 /** Receiver address for Sepolia ETH payments — from env or fallback placeholder */
 const RECEIVER_ADDRESS = import.meta.env.VITE_RECEIVER_ADDRESS ?? '';
@@ -34,46 +37,6 @@ const PNL_STEPS = [
   'Submitting…',   // 5
   'Done ✓',        // 6
 ];
-
-const REASON_CODE_MAP = {
-  INSUFFICIENT_PNL: 'Your verified Binance PnL does not meet the minimum requirement for this tier.',
-  ALREADY_CLAIMED: 'This item has already been claimed by this wallet.',
-  REPLAY_DETECTED: 'This attestation proof has already been used.',
-  ATTESTATION_EXPIRED: 'Attestation expired. Please generate a fresh proof.',
-  RECIPIENT_MISMATCH: 'Attestation recipient does not match your connected wallet.',
-  INVALID_SIGNATURE: 'Attestation signature verification failed.',
-  INVALID_REQUEST_URL: 'Attestation endpoint does not match the Binance spot statistics URL.',
-  INVALID_RESPONSE_RESOLVE: 'Attestation fields do not match the expected template schema.',
-  INVALID_ATTESTATION_DATA: 'Attestation data payload is invalid.',
-  INVALID_RATE: 'PnL rate in attestation is not a valid number.',
-  INVALID_TEMPLATE_ID: 'Attestation template ID does not match the required template.',
-  UNKNOWN_ITEM: 'Selected item is not recognized.',
-  INVALID_WALLET_ADDRESS: 'Connected wallet address is invalid.',
-  INVALID_TX_HASH: 'Transaction hash format is invalid.',
-  MISSING_ATTESTATION: 'Attestation object was missing in request.',
-  SERVER_CONFIGURATION_ERROR: 'Server configuration error. Please try again later.',
-};
-
-/** Human-readable error messages by code */
-function friendlyError(err) {
-  const code = err?.code ?? '';
-  const msg  = err?.message ?? 'Unknown error';
-  if (code === 'INSUFFICIENT_BALANCE' || msg.includes('Insufficient balance:')) {
-    return msg;
-  }
-  if (code === 'NO_EXTENSION')    return 'Primus extension not found. Install it from the Chrome Web Store first.';
-  if (code === 'USER_CANCELLED')  return 'You cancelled the attestation. Try again when ready.';
-  if (code === 'SIGNING_FAILED')  return `Signing failed: ${msg}`;
-  if (code === 'NO_WALLET')       return 'No wallet connected. Please connect MetaMask first.';
-  if (code === 'ATTESTATION_FAILED') return `Attestation failed: ${msg}`;
-  if (REASON_CODE_MAP[msg])       return REASON_CODE_MAP[msg];
-  if (msg.includes('insufficient funds')) {
-    console.error('[CheckoutModal] Raw insufficient funds error:', err);
-    return msg;
-  }
-  if (msg.includes('user rejected'))      return 'Transaction rejected in wallet.';
-  return msg;
-}
 
 // ── ETH Checkout ─────────────────────────────────────────────────────────────
 

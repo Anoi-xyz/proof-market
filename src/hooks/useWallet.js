@@ -19,8 +19,10 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { BrowserProvider, parseEther, formatEther, isAddress } from 'ethers';
-import { SEPOLIA_CHAIN_ID } from '../items.js';
+import { BrowserProvider, JsonRpcProvider, parseEther, formatEther, isAddress } from 'ethers';
+import { SEPOLIA_CHAIN_ID, DEFAULT_SEPOLIA_RPC_URL } from '../items.js';
+
+export { DEFAULT_SEPOLIA_RPC_URL };
 
 const DISCONNECT_STORAGE_KEY = 'proofmarket_disconnected';
 
@@ -239,53 +241,92 @@ export default function useWallet() {
     const signer = await provider.getSigner();
     const signerAddress = await signer.getAddress();
 
-    // 2. Read balance for the connected account from the same provider and network
-    const balanceWei = await provider.getBalance(signerAddress);
+    // 2. Read balance for the connected account with fallback to public Sepolia RPC
+    // If the wallet's RPC endpoint fails (e.g. 404 or connection failure), we fall back
+    // to a read-only public Sepolia RPC. If that also fails, we skip pre-check and let
+    // the wallet's send step decide — NEVER label an RPC failure as insufficient balance.
+    let balanceWei = null;
+    let balanceReadSuccess = false;
 
-    // 3. Compare in wei with BigInt: balance >= amountWei + a small gas buffer. No float or string comparison.
-    const amountWei = parseEther(String(ethAmount)); // BigInt in ethers v6
-
-    // Estimate realistic gas buffer in wei (21k gas for ETH transfer)
-    let gasBufferWei = 21000n * 50_000_000_000n; // fallback: 21k gas * 50 gwei = 0.00105 ETH
     try {
-      const feeData = await provider.getFeeData();
-      const currentGasPrice = feeData.maxFeePerGas ?? feeData.gasPrice;
-      if (currentGasPrice && currentGasPrice > 0n) {
-        // 21000 gas * gasPrice * 1.5 buffer
-        gasBufferWei = (21000n * currentGasPrice * 15n) / 10n;
+      balanceWei = await provider.getBalance(signerAddress);
+      balanceReadSuccess = true;
+    } catch (walletRpcErr) {
+      console.error('[sendPayment] Wallet RPC getBalance failed:', {
+        code: walletRpcErr?.code ?? 'UNKNOWN',
+        message: walletRpcErr?.message,
+        signerAddress,
+        chainId: currentChainId,
+        error: walletRpcErr,
+      });
+
+      // Fall back to read-only JsonRpcProvider on public Sepolia RPC
+      try {
+        console.log(`[sendPayment] Attempting fallback getBalance via public Sepolia RPC: ${DEFAULT_SEPOLIA_RPC_URL}`);
+        const fallbackProvider = new JsonRpcProvider(DEFAULT_SEPOLIA_RPC_URL);
+        balanceWei = await fallbackProvider.getBalance(signerAddress);
+        balanceReadSuccess = true;
+        console.log('[sendPayment] Fallback public Sepolia RPC getBalance success:', formatEther(balanceWei), 'ETH');
+      } catch (fallbackRpcErr) {
+        console.error('[sendPayment] Fallback public Sepolia RPC getBalance also failed:', {
+          code: fallbackRpcErr?.code ?? 'UNKNOWN',
+          message: fallbackRpcErr?.message,
+          rpcUrl: DEFAULT_SEPOLIA_RPC_URL,
+          error: fallbackRpcErr,
+        });
+        // Both RPCs failed: skip pre-check and let the wallet's own send step decide
+        balanceReadSuccess = false;
       }
-    } catch (feeErr) {
-      console.warn('[sendPayment] Could not query feeData, using fallback gas buffer:', feeErr);
     }
 
-    const requiredWei = amountWei + gasBufferWei;
+    const amountWei = parseEther(String(ethAmount)); // BigInt in ethers v6
 
-    console.log('[sendPayment] Sepolia balance check:', {
-      signerAddress,
-      chainId: currentChainId,
-      balanceWei: balanceWei.toString(),
-      amountWei: amountWei.toString(),
-      gasBufferWei: gasBufferWei.toString(),
-      requiredWei: requiredWei.toString(),
-      balanceEth: formatEther(balanceWei),
-      requiredEth: formatEther(requiredWei),
-    });
+    // 3. Only evaluate balance if a balance read was actually successful
+    if (balanceReadSuccess && balanceWei !== null) {
+      // Estimate realistic gas buffer in wei (21k gas for ETH transfer)
+      let gasBufferWei = 21000n * 50_000_000_000n; // fallback: 21k gas * 50 gwei = 0.00105 ETH
+      try {
+        const feeData = await provider.getFeeData();
+        const currentGasPrice = feeData.maxFeePerGas ?? feeData.gasPrice;
+        if (currentGasPrice && currentGasPrice > 0n) {
+          // 21000 gas * gasPrice * 1.5 buffer
+          gasBufferWei = (21000n * currentGasPrice * 15n) / 10n;
+        }
+      } catch (feeErr) {
+        console.warn('[sendPayment] Could not query feeData from wallet provider (RPC error code:', feeErr?.code ?? 'UNKNOWN', feeErr?.message, '), using fallback gas buffer');
+      }
 
-    if (balanceWei < requiredWei) {
-      const balanceEth = formatEther(balanceWei);
-      const requiredEth = formatEther(requiredWei);
-      const errMsg = `Insufficient balance: connected address ${signerAddress} on chain ${currentChainId} has ${balanceEth} Sepolia ETH (${balanceWei.toString()} wei), but needs ~${requiredEth} ETH (${requiredWei.toString()} wei for ${ethAmount} ETH + gas).`;
-      console.error('[sendPayment] Check failed:', errMsg);
-      const err = new Error(errMsg);
-      err.code = 'INSUFFICIENT_BALANCE';
-      err.details = {
-        address: signerAddress,
+      const requiredWei = amountWei + gasBufferWei;
+
+      console.log('[sendPayment] Sepolia balance check:', {
+        signerAddress,
         chainId: currentChainId,
         balanceWei: balanceWei.toString(),
-        balanceEth,
-        requiredEth,
-      };
-      throw err;
+        amountWei: amountWei.toString(),
+        gasBufferWei: gasBufferWei.toString(),
+        requiredWei: requiredWei.toString(),
+        balanceEth: formatEther(balanceWei),
+        requiredEth: formatEther(requiredWei),
+      });
+
+      if (balanceWei < requiredWei) {
+        const balanceEth = formatEther(balanceWei);
+        const requiredEth = formatEther(requiredWei);
+        const errMsg = `Insufficient balance: connected address ${signerAddress} on chain ${currentChainId} has ${balanceEth} Sepolia ETH (${balanceWei.toString()} wei), but needs ~${requiredEth} ETH (${requiredWei.toString()} wei for ${ethAmount} ETH + gas).`;
+        console.error('[sendPayment] Insufficient balance check failed:', errMsg);
+        const err = new Error(errMsg);
+        err.code = 'INSUFFICIENT_BALANCE';
+        err.details = {
+          address: signerAddress,
+          chainId: currentChainId,
+          balanceWei: balanceWei.toString(),
+          balanceEth,
+          requiredEth,
+        };
+        throw err;
+      }
+    } else {
+      console.log('[sendPayment] Skipping balance pre-check (RPC balance read unavailable); delegating check to wallet sendTransaction.');
     }
 
     // 4. Send transaction

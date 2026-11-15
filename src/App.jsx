@@ -1,13 +1,18 @@
 /**
  * App.jsx — ProofMarket root component
  *
- * Layout:  UsernameGate → StickyNav → MarketPage → Footer
+ * Flow:
+ *   Landing (exchange carousel) → UsernameGate → StickyNav → MarketPage → Footer
  *
- * Wallet state lives here and is passed down.
- * CheckoutModal + ReceiptCard are managed here.
+ * - Landing is shown when there is no saved username.
+ * - Returning users skip the landing straight to the market.
+ * - "Change username" in nav re-opens UsernameGate, not the landing.
+ * - Selecting Binance stores "binance" in sessionStorage (proofmarket_exchange).
+ * - Zero wallet code/prompts run on the landing page.
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
+import LandingPage    from './pages/LandingPage.jsx';
 import StickyNav      from './components/StickyNav.jsx';
 import Footer         from './components/Footer.jsx';
 import UsernameGate   from './components/UsernameGate.jsx';
@@ -18,13 +23,10 @@ import useWallet      from './hooks/useWallet.js';
 import { useTheme }   from './hooks/useTheme.js';
 
 const USERNAME_KEY = 'ppnl_username';
+const EXCHANGE_STORAGE_KEY = 'proofmarket_exchange';
 
-export default function App() {
-  // ── Theme ──────────────────────────────────────────────────────────────────
-  const { theme, toggleTheme } = useTheme();
-
+function MarketView({ username, setUsername, theme, toggleTheme }) {
   // ── Username gate ──────────────────────────────────────────────────────────
-  const [username,  setUsername]  = useState(() => localStorage.getItem(USERNAME_KEY) ?? '');
   const [gatePhase, setGatePhase] = useState(() =>
     localStorage.getItem(USERNAME_KEY) ? 'done' : 'show',
   );
@@ -34,7 +36,7 @@ export default function App() {
     setUsername(name);
     setGatePhase('fading');
     setTimeout(() => setGatePhase('done'), 520);
-  }, []);
+  }, [setUsername]);
 
   const handleChangeUsername = useCallback(() => setGatePhase('show'), []);
 
@@ -42,7 +44,6 @@ export default function App() {
   const wallet = useWallet();
 
   // ── Checkout modal state ───────────────────────────────────────────────────
-  // { item, mode }  or  null when closed
   const [checkout, setCheckout] = useState(null);
 
   // Automatically close checkout if wallet disconnects
@@ -52,7 +53,7 @@ export default function App() {
     }
   }, [wallet.address]);
 
-  // After a successful claim:  { receipt, item, mode, attestation }  or  null
+  // After a successful claim: { receipt, item, mode, attestation } or null
   const [claimResult, setClaimResult] = useState(null);
 
   const handlePayEth = useCallback((item) => {
@@ -68,19 +69,10 @@ export default function App() {
   const handleCheckoutClose = useCallback(() => setCheckout(null), []);
 
   const handleCheckoutComplete = useCallback((receipt) => {
-    // Stash the full attestation that was submitted so ReceiptCard can display
-    // attestor address / signature. We read it from CheckoutModal's closure via
-    // a custom event emitted before calling onComplete, OR we grab it from the
-    // last checkout context.
     setClaimResult({
       receipt,
       item: checkout?.item,
       mode: checkout?.mode,
-      // Note: the attestation object itself is not in `receipt` (server strips it).
-      // ReceiptCard accepts it as a separate optional prop; in the ETH flow it's null.
-      // For the PnL flow, the CheckoutModal can pass it via a ref/state trick but
-      // since we don't want to expose PnL rate to the UI, we keep attestation null here.
-      // The ReceiptCard will gracefully skip those fields when attestation is null.
       attestation: null,
     });
     setCheckout(null);
@@ -88,7 +80,6 @@ export default function App() {
 
   const handleReceiptClose = useCallback(() => setClaimResult(null), []);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
       {/* Username gate overlay */}
@@ -142,7 +133,9 @@ export default function App() {
           role="dialog"
           aria-modal="true"
           aria-label="Claim receipt"
-          onClick={(e) => { if (e.target === e.currentTarget) handleReceiptClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleReceiptClose();
+          }}
         >
           <div className="checkout-card">
             <button
@@ -165,5 +158,33 @@ export default function App() {
         </div>
       )}
     </>
+  );
+}
+
+export default function App() {
+  const { theme, toggleTheme } = useTheme();
+  const [username, setUsername] = useState(() => localStorage.getItem(USERNAME_KEY) ?? '');
+
+  // Show landing only when there is no saved username. Returning users skip straight to the market.
+  const [landingDismissed, setLandingDismissed] = useState(() =>
+    Boolean(localStorage.getItem(USERNAME_KEY))
+  );
+
+  const handleLandingContinue = useCallback(() => {
+    sessionStorage.setItem(EXCHANGE_STORAGE_KEY, 'binance');
+    setLandingDismissed(true);
+  }, []);
+
+  if (!landingDismissed) {
+    return <LandingPage onContinue={handleLandingContinue} />;
+  }
+
+  return (
+    <MarketView
+      username={username}
+      setUsername={setUsername}
+      theme={theme}
+      toggleTheme={toggleTheme}
+    />
   );
 }
