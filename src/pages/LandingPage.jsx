@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ExchangeCarousel from '../components/ExchangeCarousel.jsx';
 import '../styles/landing.css';
 
-export default function LandingPage({ onContinue }) {
+export default function LandingPage({ onContinue, onBackToMarket, canBackToMarket = false }) {
   const [selectedExchange, setSelectedExchange] = useState(null);
   const triggerRef = useRef(null);
   const dialogRef = useRef(null);
@@ -84,7 +84,19 @@ export default function LandingPage({ onContinue }) {
         <div className="landing-brand">
           Proof<i>Market</i>
         </div>
-        <div className="landing-pill">Powered by Primus zkTLS</div>
+        <div className="landing-header-actions">
+          {canBackToMarket && (
+            <button
+              type="button"
+              className="landing-back-market-btn"
+              onClick={onBackToMarket}
+              aria-label="Back to market"
+            >
+              ← Back to market
+            </button>
+          )}
+          <div className="landing-pill">Powered by Primus zkTLS</div>
+        </div>
       </header>
 
       <ExchangeCarousel

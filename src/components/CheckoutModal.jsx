@@ -40,7 +40,7 @@ const PNL_STEPS = [
 
 // ── ETH Checkout ─────────────────────────────────────────────────────────────
 
-function EthCheckout({ item, wallet, onComplete, onClose }) {
+function EthCheckout({ item, wallet, onComplete, onClose, onBusyChange }) {
   const [phase,  setPhase]  = useState('idle');  // idle | sending | confirming | done
   const [txHash, setTxHash] = useState(null);
   const [err,    setErr]    = useState(null);
@@ -90,6 +90,10 @@ function EthCheckout({ item, wallet, onComplete, onClose }) {
 
   const phaseIndex = { idle: 0, sending: 1, confirming: 2, submitting: 2, done: 3 }[phase] ?? 0;
   const busy = phase !== 'idle' && phase !== 'done';
+
+  useEffect(() => {
+    onBusyChange?.(busy);
+  }, [busy, onBusyChange]);
 
   return (
     <div className="checkout-inner">
@@ -189,7 +193,7 @@ function EthCheckout({ item, wallet, onComplete, onClose }) {
 
 // ── PnL Checkout ─────────────────────────────────────────────────────────────
 
-function PnlCheckout({ item, wallet, onComplete, onClose }) {
+function PnlCheckout({ item, wallet, onComplete, onClose, onBusyChange }) {
   const [phase,       setPhase]       = useState('idle');
   const [stepIndex,   setStepIndex]   = useState(0);
   const [err,         setErr]         = useState(null);
@@ -231,6 +235,10 @@ function PnlCheckout({ item, wallet, onComplete, onClose }) {
 
   const pnlPct = (item.minPnl * 100).toFixed(0);
   const busy   = phase === 'running';
+
+  useEffect(() => {
+    onBusyChange?.(busy);
+  }, [busy, onBusyChange]);
 
   return (
     <div className="checkout-inner">
@@ -281,7 +289,14 @@ function PnlCheckout({ item, wallet, onComplete, onClose }) {
 
 // ── CheckoutModal ─────────────────────────────────────────────────────────────
 
-export default function CheckoutModal({ item, mode, wallet, onClose, onComplete }) {
+export default function CheckoutModal({ item, mode, wallet, onClose, onComplete, onBusyChange }) {
+  // Reset busy on unmount
+  useEffect(() => {
+    return () => {
+      onBusyChange?.(false);
+    };
+  }, [onBusyChange]);
+
   // Close on Escape
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
@@ -309,9 +324,21 @@ export default function CheckoutModal({ item, mode, wallet, onClose, onComplete 
         </button>
 
         {mode === 'eth' ? (
-          <EthCheckout item={item} wallet={wallet} onComplete={onComplete} onClose={onClose} />
+          <EthCheckout
+            item={item}
+            wallet={wallet}
+            onComplete={onComplete}
+            onClose={onClose}
+            onBusyChange={onBusyChange}
+          />
         ) : (
-          <PnlCheckout item={item} wallet={wallet} onComplete={onComplete} onClose={onClose} />
+          <PnlCheckout
+            item={item}
+            wallet={wallet}
+            onComplete={onComplete}
+            onClose={onClose}
+            onBusyChange={onBusyChange}
+          />
         )}
       </div>
     </div>

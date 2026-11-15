@@ -17,11 +17,23 @@ export default function StickyNav({
   username, onChangeUsername,
   theme, onToggleTheme,
   wallet, onConnectWallet,
+  onChangeExchange, selectedExchange, isActionInProgress = false,
 }) {
   const navRef = useRef(null);
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Derive exchange display name (defaults to "Binance")
+  const rawExchange = selectedExchange || (typeof window !== 'undefined' ? sessionStorage.getItem('proofmarket_exchange') : null);
+  const exchangeName = (() => {
+    if (!rawExchange) return 'Binance';
+    const lower = rawExchange.toLowerCase();
+    if (lower === 'okx') return 'OKX';
+    if (lower === 'bitget') return 'Bitget';
+    if (lower === 'bybit') return 'Bybit';
+    return rawExchange.charAt(0).toUpperCase() + rawExchange.slice(1);
+  })();
 
   // Close menu if wallet disconnects
   useEffect(() => {
@@ -148,8 +160,28 @@ export default function StickyNav({
       )}
 
       <ul className="nav-links" role="list">
-        <li>
+        <li className="hide-sm">
           <a href="#about" className="nav-about-link">About</a>
+        </li>
+
+        {/* Change exchange */}
+        <li className="nav-exchange-item">
+          <div className="nav-exchange-wrapper">
+            <span className="nav-exchange-label">
+              Exchange: {exchangeName}
+            </span>
+            <button
+              type="button"
+              className="nav-exchange-btn"
+              onClick={onChangeExchange}
+              disabled={isActionInProgress}
+              aria-label="Change exchange"
+              title={isActionInProgress ? 'Finish or cancel the current action first' : 'Change exchange'}
+            >
+              <span className="nav-exchange-icon" aria-hidden="true">⇄</span>
+              <span className="nav-exchange-text">Change exchange</span>
+            </button>
+          </div>
         </li>
 
         {/* Wallet status / dropdown */}

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node api/claim.test.js && node test/rpc-fallback.test.mjs",
+    "test": "node api/claim.test.js && node test/rpc-fallback.test.mjs && node test/change-exchange.test.mjs",
     "server": "node server/index.cjs",
     "start": "concurrently \"npm run dev\" \"npm run server\""
   },

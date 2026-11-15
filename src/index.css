@@ -1235,6 +1235,74 @@ body {
   cursor: not-allowed;
 }
 
+/* ── Change Exchange button in nav ─────────────────────────────────────── */
+.nav-exchange-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-exchange-label {
+  font-size: 13px;
+  color: var(--mut);
+  white-space: nowrap;
+  font-weight: 500;
+  font-family: var(--f);
+}
+
+.nav-exchange-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--glass);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--f);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.15s, color 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+
+.nav-exchange-btn:hover:not(:disabled) {
+  border-color: var(--acc);
+  color: var(--acc);
+}
+
+.nav-exchange-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.nav-exchange-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .nav-exchange-label {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav-exchange-label {
+    display: none;
+  }
+  .nav-exchange-text {
+    display: none;
+  }
+  .nav-exchange-btn {
+    padding: 6px 9px;
+    border-radius: 99px;
+  }
+}
+
 /* ── Wallet button in nav ────────────────────────────────────────────────── */
 .wallet-btn {
   display: inline-flex;

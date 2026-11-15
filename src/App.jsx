@@ -7,8 +7,9 @@
  * - Landing is shown when there is no saved username.
  * - Returning users skip the landing straight to the market.
  * - "Change username" in nav re-opens UsernameGate, not the landing.
+ * - "Change exchange" in nav returns to landing page with a "Back to market" option.
  * - Selecting Binance stores "binance" in sessionStorage (proofmarket_exchange).
- * - Zero wallet code/prompts run on the landing page.
+ * - Zero wallet code/prompts run on initial landing page.
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -25,7 +26,10 @@ import { useTheme }   from './hooks/useTheme.js';
 const USERNAME_KEY = 'ppnl_username';
 const EXCHANGE_STORAGE_KEY = 'proofmarket_exchange';
 
-function MarketView({ username, setUsername, theme, toggleTheme }) {
+function MarketView({
+  username, setUsername, theme, toggleTheme,
+  onChangeExchange, selectedExchange, isHidden,
+}) {
   // ── Username gate ──────────────────────────────────────────────────────────
   const [gatePhase, setGatePhase] = useState(() =>
     localStorage.getItem(USERNAME_KEY) ? 'done' : 'show',
@@ -40,6 +44,9 @@ function MarketView({ username, setUsername, theme, toggleTheme }) {
 
   const handleChangeUsername = useCallback(() => setGatePhase('show'), []);
 
+  // ── Action in progress (sending, confirming, attesting) ───────────────────
+  const [actionInProgress, setActionInProgress] = useState(false);
+
   // ── Wallet ─────────────────────────────────────────────────────────────────
   const wallet = useWallet();
 
@@ -50,6 +57,7 @@ function MarketView({ username, setUsername, theme, toggleTheme }) {
   useEffect(() => {
     if (!wallet.address) {
       setCheckout(null);
+      setActionInProgress(false);
     }
   }, [wallet.address]);
 
@@ -66,9 +74,13 @@ function MarketView({ username, setUsername, theme, toggleTheme }) {
     setCheckout({ item, mode: 'pnl' });
   }, []);
 
-  const handleCheckoutClose = useCallback(() => setCheckout(null), []);
+  const handleCheckoutClose = useCallback(() => {
+    setActionInProgress(false);
+    setCheckout(null);
+  }, []);
 
   const handleCheckoutComplete = useCallback((receipt) => {
+    setActionInProgress(false);
     setClaimResult({
       receipt,
       item: checkout?.item,
@@ -80,8 +92,14 @@ function MarketView({ username, setUsername, theme, toggleTheme }) {
 
   const handleReceiptClose = useCallback(() => setClaimResult(null), []);
 
+  const handleTriggerChangeExchange = useCallback(() => {
+    if (actionInProgress) return;
+    setCheckout(null);
+    onChangeExchange?.();
+  }, [actionInProgress, onChangeExchange]);
+
   return (
-    <>
+    <div style={isHidden ? { display: 'none' } : undefined}>
       {/* Username gate overlay */}
       {gatePhase !== 'done' && (
         <UsernameGate fading={gatePhase === 'fading'} onSubmit={handleGateSubmit} />
@@ -104,6 +122,9 @@ function MarketView({ username, setUsername, theme, toggleTheme }) {
         onToggleTheme={toggleTheme}
         wallet={wallet}
         onConnectWallet={wallet.connect}
+        onChangeExchange={handleTriggerChangeExchange}
+        selectedExchange={selectedExchange}
+        isActionInProgress={actionInProgress}
       />
 
       {/* Main content */}
@@ -123,6 +144,7 @@ function MarketView({ username, setUsername, theme, toggleTheme }) {
           wallet={wallet}
           onClose={handleCheckoutClose}
           onComplete={handleCheckoutComplete}
+          onBusyChange={setActionInProgress}
         />
       )}
 
@@ -157,7 +179,7 @@ function MarketView({ username, setUsername, theme, toggleTheme }) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
@@ -165,26 +187,62 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const [username, setUsername] = useState(() => localStorage.getItem(USERNAME_KEY) ?? '');
 
-  // Show landing only when there is no saved username. Returning users skip straight to the market.
-  const [landingDismissed, setLandingDismissed] = useState(() =>
-    Boolean(localStorage.getItem(USERNAME_KEY))
+  const hasSavedUser = Boolean(localStorage.getItem(USERNAME_KEY));
+
+  // Show landing on fresh load only when there is no saved username.
+  // Returning users with a saved username skip straight to the market.
+  const [showLanding, setShowLanding] = useState(() => !hasSavedUser);
+
+  // Tracks if the user arrived at the landing page via the "Change exchange" button
+  const [arrivedViaChangeExchange, setArrivedViaChangeExchange] = useState(false);
+
+  // Tracks if the market has been entered at least once in this session
+  const [hasEnteredMarket, setHasEnteredMarket] = useState(() => hasSavedUser);
+
+  // Currently selected exchange
+  const [selectedExchange, setSelectedExchange] = useState(
+    () => sessionStorage.getItem(EXCHANGE_STORAGE_KEY) || 'binance'
   );
 
   const handleLandingContinue = useCallback(() => {
     sessionStorage.setItem(EXCHANGE_STORAGE_KEY, 'binance');
-    setLandingDismissed(true);
+    setSelectedExchange('binance');
+    setShowLanding(false);
+    setArrivedViaChangeExchange(false);
+    setHasEnteredMarket(true);
   }, []);
 
-  if (!landingDismissed) {
-    return <LandingPage onContinue={handleLandingContinue} />;
-  }
+  const handleBackToMarket = useCallback(() => {
+    setShowLanding(false);
+    setArrivedViaChangeExchange(false);
+  }, []);
+
+  const handleChangeExchange = useCallback(() => {
+    setArrivedViaChangeExchange(true);
+    setShowLanding(true);
+  }, []);
 
   return (
-    <MarketView
-      username={username}
-      setUsername={setUsername}
-      theme={theme}
-      toggleTheme={toggleTheme}
-    />
+    <>
+      {showLanding && (
+        <LandingPage
+          onContinue={handleLandingContinue}
+          onBackToMarket={handleBackToMarket}
+          canBackToMarket={arrivedViaChangeExchange}
+        />
+      )}
+
+      {hasEnteredMarket && (
+        <MarketView
+          username={username}
+          setUsername={setUsername}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onChangeExchange={handleChangeExchange}
+          selectedExchange={selectedExchange}
+          isHidden={showLanding}
+        />
+      )}
+    </>
   );
 }

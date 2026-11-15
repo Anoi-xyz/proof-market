@@ -55,6 +55,39 @@
   color: var(--acc);
 }
 
+.landing-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.landing-back-market-btn {
+  background: var(--glass, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--line);
+  color: var(--fg);
+  border-radius: 99px;
+  padding: 6px 14px;
+  font: 600 13px var(--f, system-ui, sans-serif);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.landing-back-market-btn:hover {
+  border-color: var(--acc);
+  color: var(--acc);
+}
+
+.landing-back-market-btn:focus-visible {
+  outline: 3px solid var(--acc);
+  outline-offset: 2px;
+}
+
 .landing-pill {
   font-size: 13px;
   color: var(--mut);
@@ -63,6 +96,25 @@
   border-radius: 99px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .landing-header {
+    padding: 14px 16px;
+    gap: 8px;
+  }
+  .landing-header-actions {
+    gap: 8px;
+  }
+  .landing-back-market-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  .landing-pill {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
 }
 
 /* 3D Stage */
